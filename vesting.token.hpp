@@ -30,8 +30,14 @@ namespace eosio {
                         account_name to,
                         asset        quantity,
                         string       memo );
-      
-      
+         void vest( account_name to,
+                    asset        quantity,
+                    uint64_t     vest_seconds,
+                    string       memo );
+
+         void claimvest( uint64_t id,
+                         asset    quantity );
+
          inline asset get_supply( symbol_name sym )const;
          
          inline asset get_balance( account_name owner, symbol_name sym )const;
@@ -51,12 +57,23 @@ namespace eosio {
             uint64_t primary_key()const { return supply.symbol.name(); }
          };
 
+         struct vest_record{
+             uint64_t       id;
+             asset          vested_balance;
+             account_name   reciever;
+             uint64_t       vested_until;
+             
+             uint64_t primary_key()const { return id; }
+
+         };
+
+         typedef eosio::multi_index<N(vests), vest_record> vests;
          typedef eosio::multi_index<N(accounts), account> accounts;
          typedef eosio::multi_index<N(stat), currency_stats> stats;
 
          void sub_balance( account_name owner, asset value );
          void add_balance( account_name owner, asset value, account_name ram_payer );
-
+         void add_vested_balance( account_name owner, asset value, uint64_t vest_seconds, account_name ram_payer );
       public:
          struct transfer_args {
             account_name  from;
