@@ -121,10 +121,14 @@ void token::claimvest( uint64_t id,
     vests vestings( _self, _self );
     auto vest = vestings.get(id, "vest not found");
     auto reciever = vest.reciever;
+
     require_auth( reciever );
+    
     eosio_assert( quantity.symbol == vest.vested_balance.symbol, "symbol precision mismatch" );
     eosio_assert( vest.vested_balance.amount >= quantity.amount, "overdrawn balance" );
     eosio_assert( now() >= vest.vested_until, "early claim");
+    require_recipient( reciever );
+    require_recipient( _self );
 
     // sub vested
     if( vest.vested_balance.amount == quantity.amount ) {
